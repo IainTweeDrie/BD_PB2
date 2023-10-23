@@ -1,9 +1,8 @@
 import os
-from transformers import pipeline
+from transformers import DistilBertTokenizer, DistilBertForSequenceClassification, pipeline
 from google.cloud import storage
 import csv
 from io import StringIO
-
 def download_blob(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
     storage_client = storage.Client()
@@ -28,7 +27,9 @@ def main():
     data = get_blob_data(BUCKET_NAME, BLOB_NAME)
 
     # Step 2: Use Hugging Face pre-trained transformer to get sentiments
-    nlp = pipeline("sentiment-analysis")
+    tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased-finetuned-sst-2-english')
+    model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased-finetuned-sst-2-english')
+    nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 
     correct_predictions = 0
     total_predictions = 0
